@@ -97,6 +97,10 @@ async fn main() -> MyResult {
         }
     }
 
+    if bytes_size > 0 {
+        set.spawn(process_parts(PathBuf::from(csv_util.input_path.clone()), PathBuf::from(csv_util.output_path.clone()), file_suffix.to_string(), SeekFrom::Start(seek_from), bytes_size, file_suffix > 0 || always_bom > 0, header_line.clone()));
+    }
+
     while let Some(_) = set.join_next().await {}
     Ok(())
 }
