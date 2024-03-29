@@ -77,6 +77,7 @@ async fn main() -> MyResult {
         if header > 0 {
             header -= 1;
             header_line.push_str(&format!("{}\n", &line));
+            seek_from += u64::try_from(line.len() + NEWLINE_LEN).unwrap();
             continue;
         }
 
