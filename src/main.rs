@@ -39,6 +39,11 @@ struct CsvUtil {
     /// Turn debugging info on
     #[arg(short, long, action = clap::ArgAction::Count)]
     debug: u8,
+
+    /// Always BOM
+    #[arg(long)]
+    #[clap(default_value_t = 0)]
+    always_bom: u8,
 }
 
 #[tokio::main]
@@ -48,6 +53,7 @@ async fn main() -> MyResult {
     let output_path = Path::new(&csv_util.output_path);
     let file_lines = csv_util.file_lines;
     let mut header = csv_util.header;
+    let always_bom = csv_util.always_bom;
 
     if !input_path.exists() {
         println!("Cannot find input file!");
@@ -84,7 +90,7 @@ async fn main() -> MyResult {
         line_counter += 1;
         bytes_size += line.len() + NEWLINE_LEN;
         if line_counter % file_lines == 0 {
-            set.spawn(process_parts(PathBuf::from(csv_util.input_path.clone()), PathBuf::from(csv_util.output_path.clone()), file_suffix.to_string(), SeekFrom::Start(seek_from), bytes_size, file_suffix > 0, header_line.clone()));
+            set.spawn(process_parts(PathBuf::from(csv_util.input_path.clone()), PathBuf::from(csv_util.output_path.clone()), file_suffix.to_string(), SeekFrom::Start(seek_from), bytes_size, file_suffix > 0 || always_bom > 0, header_line.clone()));
             seek_from += u64::try_from(bytes_size).unwrap();
             file_suffix += 1;
             bytes_size = 0;
